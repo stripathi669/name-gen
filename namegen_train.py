@@ -24,9 +24,9 @@ name-gen: Free python name generator module that analyzes sample text and produc
 
 Training process for learning words from a sample text.
 
-Provided 'Samples/[filename].txt', output will be 'Languages/[filename]X.txt', where
-X is 2 or 3, depending on the length of the syllables (default is 3 letters, option
-'--small' for 2 letters).
+Provided 'Samples/[filename].txt', output will be 'Languages/[filename].txt'.
+Default is 3 letters per syllable, but 2 letters can be selected with the option
+'--small'. In that case, output will be 'Languages/[filename]2.txt'.
 
 Generally, syllables of 3 letters encode more complex patterns (ie, yield better
 results), but may take some time to learn big samples (for example, 'lusiadas' has
@@ -35,6 +35,7 @@ results), but may take some time to learn big samples (for example, 'lusiadas' h
 
 import itertools
 import os
+import locale
 from optparse import OptionParser
 from namegen import NameGen
 
@@ -46,7 +47,13 @@ def main():
 	parser.add_option('-F', default=0.05, help='Fraction of acceptable syllables of 3 letters (default 0.05).')
 	parser.add_option('--small', default=False, action='store_true', help='Only use syllables of 2 letters (faster).')
 	(options, args) = parser.parse_args()
-
+	
+	try:
+		options.f = float(options.f)
+		options.F = float(options.F)
+	except ValueError:
+		parser.error('Fractions must be decimal numbers between 0 and 1.')
+	
 	if options.f < 0 or options.f > 1 or options.F < 0 or options.F > 1:
 		parser.error('Fractions must be decimal numbers between 0 and 1.')
 	
@@ -61,9 +68,15 @@ def main():
 	
 	tic()
 	#get sample text
-	with open('Samples/' + filename + '.txt', 'r') as f:
-		sample = ''.join(f.readlines()).lower()
-
+	try:
+		with open('Samples/' + filename + '.txt', 'r') as f:
+			sample = ''.join(f.readlines()).lower()
+	except IOError:
+		parser.error('Language file \'Samples/' + filename + '.txt\' doesn\' exist.')
+	
+	#convert accented characters to non-accented characters
+	sample = locale.strxfrm(sample)
+	
 	#remove all characters except letters from A to Z
 	a = ord('a')
 	z = ord('z')
@@ -89,7 +102,7 @@ def main():
 
 	tic()
 	#save the results
-	if not options.small: language_file = 'Languages/' + filename + '3.txt'
+	if not options.small: language_file = 'Languages/' + filename + '.txt'
 	else: language_file = 'Languages/' + filename + '2.txt'
 
 	save_language(language_file, syllables, starts, ends, combinations)

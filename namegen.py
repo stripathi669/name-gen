@@ -34,7 +34,7 @@ class NameGen:
 	
 	def __init__(self, language_file):
 		self.min_syl = 2
-		self.max_syl = 5
+		self.max_syl = 4
 		with open(language_file, 'r') as f:
 			lines = [line.strip() for line in f.readlines()]
 			
@@ -65,26 +65,28 @@ class NameGen:
 		#turn ends list of tuples into a dictionary
 		ends_dict = dict(self.ends)
 		
-		#start word with the first syllable
-		syl = self.select_syllable(self.starts, 0)
-		word = [self.syllables[syl]]
+		word = []  #we may have to repeat the process if the first "min_syl" syllables were a...
+		while len(word) < self.min_syl:  #...bad choice and have no possible continuations
+			#start word with the first syllable
+			syl = self.select_syllable(self.starts, 0)
+			word = [self.syllables[syl]]
+			
+			for i in range(1, num_syl):
+				#don't end yet if we don't have the minimum number of syllables
+				if i < self.min_syl: end = 0
+				else: end = ends_dict.get(syl, 0)  #probability of ending for this syllable
+				
+				#select next syllable
+				syl = self.select_syllable(self.combinations[syl], end)
+				if syl is None: break  #early end for this word, end syllable was chosen
+				
+				word.append(self.syllables[syl])
+				
+			else:  #forcefully add an ending syllable if the loop ended without one
+				syl = self.select_syllable(self.ends, 0)
+				word.append(self.syllables[syl])
 		
-		for i in range(1, num_syl):
-			#don't end yet if we don't have the minimum number of syllables
-			if i < self.min_syl: end = 0
-			else: end = ends_dict.get(syl, 0)  #probability of ending for this syllable
-			
-			#select next syllable
-			syl = self.select_syllable(self.combinations[syl], end)
-			if syl is None: break  #early end for this word, end syllable was chosen
-			
-			word.append(self.syllables[syl])
-			
-		else:  #forcefully add an ending syllable if the loop ended without one
-			syl = self.select_syllable(self.ends, 0)
-			word.append(self.syllables[syl])
-		
-		return ''.join(word)
+		return ''.join(word).capitalize()
 
 	def select_syllable(self, counts, end_count):
 		if len(counts) == 0: return None  #no elements to choose from

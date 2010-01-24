@@ -22,33 +22,45 @@ License along with name-gen.  If not, see
 name-gen: Free python name generator module that analyzes sample text and produces
 	similar words.
 
-Spartan example usage.
+Example usage and simple demonstration.
 """
 
+import os
 from namegen import NameGen
 
 
-#filename = 'greek2'
-#filename = 'greek3'
-#filename = 'hebrew2'
-filename = 'hebrew3'
-#filename = 'lusiadas2'
-#filename = 'lusiadas3'
+#get all available language files
+files = os.listdir('./Languages')
 
 
-#load generator data from language file
-language_file = 'Languages/' + filename + '.txt'
+exit = False
+while not exit:
+	print 'Select a language file: (any other input to quit)\n'
 
-generator = NameGen(language_file)
+	#present all available files as options
+	for (id, file) in enumerate(files):
+		print id, ': ', file
+	
+	#interpret option number, if anything goes wrong quit
+	try:
+		filename = files[int(raw_input())]
+	except ValueError or IndexError:
+		break
+	
+	
+	#load generator data from language file
+	generator = NameGen('Languages/' + filename)
+	
+	
+	#generate a few words
+	for i in range(20):
+		print generator.gen_word()
+	
+	
+	#pause (wait for some input)
+	print '\nPress Enter to continue.'
+	try:
+		raw_input()
+	except EOFError:
+		pass
 
-
-#generate a few words
-for i in range(20):
-	print generator.gen_word()
-
-
-#pause (wait for some input)
-try:
-	raw_input()
-except EOFError:
-	pass
