@@ -67,22 +67,11 @@ def main():
 	print '\n>>> name-gen 1.0 training procedure for "' + filename + '"\n'
 	
 	tic()
-	#get sample text
-	try:
-		with open('Samples/' + filename + '.txt', 'r') as f:
-			sample = ''.join(f.readlines()).lower()
+	try:  #get sample text and convert special characters if needed
+		sample = load_sample('Samples/' + filename + '.txt')
+		
 	except IOError:
 		parser.error('Language file \'Samples/' + filename + '.txt\' doesn\' exist.')
-	
-	#convert accented characters to non-accented characters
-	sample = locale.strxfrm(sample)
-	
-	#remove all characters except letters from A to Z
-	a = ord('a')
-	z = ord('z')
-	sample = ''.join([
-		c if (ord(c) >= a and ord(c) <= z) else ' '
-			for c in sample])
 	toc('Load sample')
 
 
@@ -125,6 +114,21 @@ def main():
 		raw_input()
 	except EOFError:
 		pass
+
+def load_sample(sample):
+	#get sample text
+	with open(, 'r') as f:
+		sample = ''.join(f.readlines()).lower()
+	
+	#convert accented characters to non-accented characters
+	sample = locale.strxfrm(sample)
+	
+	#remove all characters except letters from A to Z
+	a = ord('a')
+	z = ord('z')
+	sample = ''.join([
+		c if (ord(c) >= a and ord(c) <= z) else ' '
+			for c in sample])
 
 def get_count(count_tuple):
 	return count_tuple[1]
