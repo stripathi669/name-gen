@@ -72,7 +72,7 @@ class NameGen:
 		if forbidden_file is None:
 			self.forbidden = ''
 		else:
-			self.forbidden = self.load_sample(forbidden_file)
+			self.forbidden = _load_sample(forbidden_file)
 	
 	def gen_word(self, no_repeat = False):
 		#random number of syllables, the last one is always appended
@@ -86,7 +86,7 @@ class NameGen:
 		word = []; word_str = ''
 		while len(word) < self.min_syl or self.forbidden.find(word_str) != -1:
 			#start word with the first syllable
-			syl = self.select_syllable(self.starts, 0)
+			syl = _select_syllable(self.starts, 0)
 			word = [self.syllables[syl]]
 			
 			for i in range(1, num_syl):
@@ -95,13 +95,13 @@ class NameGen:
 				else: end = ends_dict.get(syl, 0)  #probability of ending for this syllable
 				
 				#select next syllable
-				syl = self.select_syllable(self.combinations[syl], end)
+				syl = _select_syllable(self.combinations[syl], end)
 				if syl is None: break  #early end for this word, end syllable was chosen
 				
 				word.append(self.syllables[syl])
 				
 			else:  #forcefully add an ending syllable if the loop ended without one
-				syl = self.select_syllable(self.ends, 0)
+				syl = _select_syllable(self.ends, 0)
 				word.append(self.syllables[syl])
 			
 			word_str = ''.join(word)
@@ -111,32 +111,32 @@ class NameGen:
 		
 		return word_str.capitalize()
 
-	def select_syllable(self, counts, end_count):
-		if len(counts) == 0: return None  #no elements to choose from
-		
-		#"counts" holds cumulative counts, so take the last element in the list
-		#(and 2nd in that tuple) to get the sum of all counts
-		chosen = random.randint(0, counts[-1][1] + end_count)
-		
-		for (syl, count) in counts:
-			if count >= chosen:
-				return syl
-		return None
+def _select_syllable(counts, end_count):
+	if len(counts) == 0: return None  #no elements to choose from
 	
-	def load_sample(self, filename):
-		#get sample text
-		with open(filename, 'r') as f:
-			sample = ''.join(f.readlines()).lower()
-		
-		#convert accented characters to non-accented characters
-		sample = locale.strxfrm(sample)
-		
-		#remove all characters except letters from A to Z
-		a = ord('a')
-		z = ord('z')
-		sample = ''.join([
-			c if (ord(c) >= a and ord(c) <= z) else ' '
-				for c in sample])
-		
-		return sample
+	#"counts" holds cumulative counts, so take the last element in the list
+	#(and 2nd in that tuple) to get the sum of all counts
+	chosen = random.randint(0, counts[-1][1] + end_count)
+	
+	for (syl, count) in counts:
+		if count >= chosen:
+			return syl
+	return None
+
+def _load_sample(filename):
+	#get sample text
+	with open(filename, 'r') as f:
+		sample = ''.join(f.readlines()).lower()
+	
+	#convert accented characters to non-accented characters
+	sample = locale.strxfrm(sample)
+	
+	#remove all characters except letters from A to Z
+	a = ord('a')
+	z = ord('z')
+	sample = ''.join([
+		c if (ord(c) >= a and ord(c) <= z) else ' '
+			for c in sample])
+	
+	return sample
 

@@ -36,12 +36,12 @@ results), but may take some time to learn big samples (for example, 'lusiadas' h
 import itertools
 import os
 import locale
-from optparse import OptionParser
-from namegen import NameGen
+import optparse
+import namegen
 
 def main():
 	#parse command line options
-	parser = OptionParser(usage='namegen_train.py filename [options]\n\n'
+	parser = optparse.OptionParser(usage='namegen_train.py filename [options]\n\n'
 		'Typical usage has only the filename.\nType namegen_train.py -h for more options.')
 	parser.add_option('-f', default=0.2, help='Fraction of acceptable syllables of 2 letters (default 0.2).')
 	parser.add_option('-F', default=0.05, help='Fraction of acceptable syllables of 3 letters (default 0.05).')
@@ -68,7 +68,7 @@ def main():
 	
 	tic()
 	try:  #get sample text and convert special characters if needed
-		sample = load_sample('Samples/' + filename + '.txt')
+		sample = namegen._load_sample('Samples/' + filename + '.txt')
 		
 	except IOError:
 		parser.error('Language file \'Samples/' + filename + '.txt\' doesn\' exist.')
@@ -98,7 +98,7 @@ def main():
 	toc('Save output')
 
 	tic()
-	generator = NameGen(language_file)
+	generator = namegen.NameGen(language_file)
 	toc('Re-load language (for testing purposes)')
 	
 	tic()
@@ -114,21 +114,6 @@ def main():
 		raw_input()
 	except EOFError:
 		pass
-
-def load_sample(sample):
-	#get sample text
-	with open(, 'r') as f:
-		sample = ''.join(f.readlines()).lower()
-	
-	#convert accented characters to non-accented characters
-	sample = locale.strxfrm(sample)
-	
-	#remove all characters except letters from A to Z
-	a = ord('a')
-	z = ord('z')
-	sample = ''.join([
-		c if (ord(c) >= a and ord(c) <= z) else ' '
-			for c in sample])
 
 def get_count(count_tuple):
 	return count_tuple[1]
