@@ -32,10 +32,10 @@ class NameGen:
 		2. Call gen_word() method, returns generated string.
 	
 	Optional:
-		. Change min_syl and max_syl to control number of syllables.
+		. Change min_syl and max_syl properties to control number of syllables.
 		. Pass the sample file as 2nd parameter at initialization to set it as the list
 		  of forbidden words. No words from the sample will be replicated.
-		. Pass True as the 1st parameter to name_gen() to add the generated word to the
+		. Pass True as the 1st parameter to gen_word() to add the generated word to the
 		  list of forbidden words. The word will not occur again.
 	"""
 	
